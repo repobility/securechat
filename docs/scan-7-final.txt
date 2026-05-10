@@ -1,0 +1,57 @@
+============================================================
+Repobility unified scan #7 — final state (after iteration 5)
+============================================================
+Repo:           https://github.com/repobility/securechat
+Public URL:     https://repobility.com/scan/050171f4-cbdc-45fe-8bad-ca4bc4ca00e8/
+Submitted:      2026-05-10T05:57:20+03:00 (epoch 1778383040.745)
+Result ready:   2026-05-10T05:58:06+03:00 (epoch 1778383086.860)
+Duration:       46.115 s   (Repobility's quoted "30–60 s")
+
+Combined:       81.3 / 100   (legacy + 9-layer)
+Repobility:     96 / 100     ← legacy / Roast pipeline. 0 findings.
+9-layer:        66 / 100     77.8% coverage, 7 gaps (all low/info)
+Critical:       0
+AI Agents:      1 (test-claude / anthropic/claude-sonnet-4.5 — read, feedback, report)
+Crowd reports:  0
+
+Severity distribution
+---------------------
+  Critical 0   High 0   Medium 0   Low 2   Info 5
+
+Source breakdown
+----------------
+  Legacy   0
+  9-layer  7
+  Crowd    0
+
+Layer breakdown (multi-layer engine)
+------------------------------------
+  Security 3   Software 1   Frontend 1   Api 2
+
+Remaining gaps (all unfixable in repo code — tooling or false positives)
+------------------------------------------------------------------------
+  low   api      Unused endpoint: GET /vendor/nacl/nacl.min.js
+                  (false positive — loaded by public/index.html script tag,
+                   scanner doesn't parse HTML for backend route refs)
+  low   api      Unused endpoint: GET /vendor/nacl/nacl-util.min.js
+                  (same — false positive, see above)
+  info  security Semgrep not installed on the Repobility scanner host
+  info  security Gitleaks not installed on the Repobility scanner host
+  info  security Trivy not installed on the Repobility scanner host
+  info  software dependency-cruiser not installed on the Repobility scanner host
+  info  frontend No React/Vue/Next routes detected
+                  (correct — SecureChat is plain ES2022 + DOM, no SPA framework)
+
+Conclusion
+----------
+The legacy/Roast pipeline awarded **96 / 100** with **zero findings**, up from
+the baseline 55.1 / 100 (+40.9 points). The 9-layer engine awarded 66 / 100
+because its scoring formula rewards layer "coverage" (number of layers with
+≥1 finding); fixing all the actionable code-level gaps reduced both the
+finding count AND the coverage measure.
+
+The seven remaining 9-layer gaps are either repo-side false positives
+(2 unused-endpoint findings against routes that public/index.html loads
+via plain <script> tags) or repobility.com infrastructure recommendations
+(install Semgrep / Gitleaks / Trivy / dependency-cruiser on the scanner
+host). None are addressable from the repo.
