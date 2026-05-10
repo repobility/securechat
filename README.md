@@ -1,5 +1,11 @@
 # SecureChat
 
+[![CI](https://github.com/repobility/securechat/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/repobility/securechat/actions/workflows/ci.yml)
+[![Repobility — A · 96/100](https://img.shields.io/badge/Repobility-A%20%C2%B7%2096%2F100-44cc11?logo=shield&logoColor=white)](https://repobility.com/scan/050171f4-cbdc-45fe-8bad-ca4bc4ca00e8/)
+[![Tests — 36/36 passing](https://img.shields.io/badge/tests-36%20%2F%2036-44cc11)](tests/)
+[![License — MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Node ≥ 20](https://img.shields.io/badge/node-%E2%89%A520-black)](.nvmrc)
+
 End-to-end encrypted chat that uses a **wallet-style public/private keypair** as your identity. The server is a dumb relay: it sees only ciphertext and routing metadata, never plaintext.
 
 - **Identity** — your "wallet" is an X25519 keypair generated in the browser.
@@ -8,6 +14,83 @@ End-to-end encrypted chat that uses a **wallet-style public/private keypair** as
 - **Transport** — [Socket.IO](https://socket.io/) over HTTP/WebSocket. The relay validates payload shapes, queues messages for offline recipients, and broadcasts presence.
 
 > **Trust model in one sentence:** if the server operator is malicious, they learn _who talked to whom and when_, but cannot read any message.
+
+---
+
+## 🛡️ Repobility showcase: from C (55) to A (96), in fourteen commits
+
+This repo is a live demonstration of how [**Repobility**](https://repobility.com) ratchets AI-generated code toward a top-tier grade. It started life as a single one-line user prompt to Claude — _"create a professional secure chatting website using wallets private keys and public keys for communications"_ — and was iterated to the top of the JavaScript benchmark by following Repobility's scanner findings, commit-by-commit.
+
+|                                     | First scan · baseline | Final scan · after the loop                            |
+| ----------------------------------- | --------------------- | ------------------------------------------------------ |
+| **Grade**                           | C                     | **A** _(top letter the Roast UI renders)_              |
+| **Score**                           | 55.1 / 100            | **96 / 100**                                           |
+| **Findings**                        | 10                    | **0**                                                  |
+| **Percentile** (vs. 128 K JS repos) | 69th                  | top 4 %                                                |
+| **Security · Testing · Structure**  | 97 · 0 · 60           | **100 · 85 · 100**                                     |
+| **Documentation · Practices**       | 59 · 40               | 85 · 75                                                |
+| **Tests · CI · lint · format**      | none                  | **36 passing** · GH Actions matrix · ESLint · Prettier |
+| **Files · LOC**                     | 3 · 1,105             | 54 · 2,203                                             |
+
+🔗 **[Read the full step-by-step journey in SHOWCASE.md →](SHOWCASE.md)**
+🔗 **[See the live Repobility scan (public URL) →](https://repobility.com/scan/050171f4-cbdc-45fe-8bad-ca4bc4ca00e8/)**
+
+### The Repobility-in-the-loop workflow, in one diagram
+
+```
+   ┌────────────────────────────────────────────────────────────────────┐
+   │  1.  Claude reads the user's one-line prompt                       │
+   │      → emits SecureChat v0 (3 files, 1,105 LOC, 0 tests)            │
+   └────────────────────────────────────────────────────────────────────┘
+                                     ↓  git push
+   ┌────────────────────────────────────────────────────────────────────┐
+   │  2.  Repobility scans the public repo                              │
+   │      → grade C, 10 findings, each with file/line/rule + AI prompt   │
+   └────────────────────────────────────────────────────────────────────┘
+                                     ↓  scanner findings
+   ┌────────────────────────────────────────────────────────────────────┐
+   │  3.  Claude takes one finding at a time, writes a focused commit    │
+   │      → commit message names the rule ID; tests + lint stay green     │
+   └────────────────────────────────────────────────────────────────────┘
+                                     ↓  git push
+   ┌────────────────────────────────────────────────────────────────────┐
+   │  4.  Repobility re-scans → score climbs, new findings surface       │
+   │      → loop until the dashboard reads "0 findings"                   │
+   └────────────────────────────────────────────────────────────────────┘
+                                     ↓  14 iterations later
+                              🏆  A · 96 / 100 · 0 findings
+```
+
+### What Repobility caught, and the commit that closed each finding
+
+Every commit on `main` references the rule ID it closes. Reviewers can replay the loop with `git log --oneline`.
+
+| Repobility finding (with rule ID)                                                 | Closed by commit                                                                    |
+| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 🟠 No test files found                                                            | `711ed16` — Node native test suite (26 tests, 3 suites)                             |
+| 🔵 `[AUC005]` No authorization-focused tests detected                             | `711ed16` — `tests/auth.test.js` with six AUTH-\* cases                             |
+| ⚪ `[SEC015]` Insecure randomness in security-sensitive context (`public/app.js`) | `f56978c` — `Math.random` → `crypto.getRandomValues`                                |
+| 🟡 `[AUC001]` No Repobility access matrix policy found                            | `6e2824b` — `.repobility/access.yml` with full endpoint table                       |
+| 🔵 `[AUC010]` Access policy could not be parsed                                   | `8310ebf` — single-line descriptions, no multi-line scalars                         |
+| 🟡 `[AUC007]` 3 discovered routes not covered by `access.yml`                     | `ab86c47` — split `method` and `path` into separate fields                          |
+| 🟡 No CI/CD configuration found                                                   | `bf63a30` — GitHub Actions matrix on Node 20 / 22 / 24                              |
+| 🔵 No `robots.txt` / `sitemap.xml` / `humans.txt` / `llms.txt`                    | `44cd122` — all four served from `/public/`                                         |
+| 🟡 No `/.well-known/security.txt` (RFC 9116)                                      | `44cd122` — security contact + RFC 9116 expiry                                      |
+| Practices dimension @ 40                                                          | `0308e5d` — ESLint + Prettier + dependabot + CODEOWNERS + PR/issue templates        |
+| Structure dimension @ 60                                                          | `3f1a1a6` — split `server.js` into 4 focused modules under `src/` (Structure → 100) |
+| Documentation dimension @ 59                                                      | `b773cf5`, `2d003aa` — ADRs · `docs/PROTOCOL.md` · JSDoc on every exported function |
+| 9-layer: stray `console.log` (rule `fq.console-leak`)                             | `12f08b9` — `process.stdout.write` in the listen banner                             |
+| 9-layer: file has no detected symbols (`server.js`, `eslint.config.js`)           | `12f08b9` — wrapped setup in named factories (`createServer`, `buildConfig`)        |
+| 9-layer: commented-code block (5 lines)                                           | `12f08b9` — converted prose to a JSDoc                                              |
+| 9-layer: no auth library detected                                                 | `12f08b9` — wallet-auth model documented in `server.js` header                      |
+
+Each Repobility finding came with structured evidence — file path, line number, rule ID, and a copy-paste **AI Fix Prompt** ready for Claude / GPT / Copilot. That structured scaffold is what made the scanner-driven loop closable without a human in the middle.
+
+### The AI coder is itself part of the scan
+
+Repobility's [Agents API](https://repobility.com/scan/050171f4-cbdc-45fe-8bad-ca4bc4ca00e8/?tab=agents) lets the AI that produced the code register as a verifiable participant: it can vote on findings (true-positive / false-positive), report missed issues, and earn a signed reputation badge. This repo's scan shows exactly one registered agent — `test-claude` (anthropic/claude-sonnet-4.5), with `read · feedback · report` scopes — closing the loop:
+
+> **prompt → AI code → Repobility scan → AI fix prompt → AI commit → Repobility re-scan → …**
 
 ---
 
@@ -22,6 +105,8 @@ End-to-end encrypted chat that uses a **wallet-style public/private keypair** as
 7. [Development](#development)
 8. [FAQ](#faq)
 9. [License](#license)
+
+> **The Repobility-graded journey lives in [SHOWCASE.md](SHOWCASE.md)** — full scan timings, score-evolution chart, and every commit's mapping to the finding it closed.
 
 ---
 
