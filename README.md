@@ -7,7 +7,7 @@ End-to-end encrypted chat that uses a **wallet-style public/private keypair** as
 - **Storage** — keys, contacts, and message history live in the browser's `localStorage`. Nothing is persisted server-side.
 - **Transport** — [Socket.IO](https://socket.io/) over HTTP/WebSocket. The relay validates payload shapes, queues messages for offline recipients, and broadcasts presence.
 
-> **Trust model in one sentence:** if the server operator is malicious, they learn *who talked to whom and when*, but cannot read any message.
+> **Trust model in one sentence:** if the server operator is malicious, they learn _who talked to whom and when_, but cannot read any message.
 
 ---
 
@@ -39,8 +39,8 @@ Open <http://127.0.0.1:3000> in two browsers (or a normal window + a private win
 To start chatting:
 
 1. Click **⋯ → Show full public key** in the first browser and copy the key.
-2. In the second browser, click **＋** next to *Contacts*, paste the public key, give the contact a name, and **Add**.
-3. Send a message. Both sides see "delivered". Type while the other side is composing — you'll see a *typing…* indicator.
+2. In the second browser, click **＋** next to _Contacts_, paste the public key, give the contact a name, and **Add**.
+3. Send a message. Both sides see "delivered". Type while the other side is composing — you'll see a _typing…_ indicator.
 4. Close one browser, send while it's offline, reopen — the queued message arrives instantly.
 
 The server logs nothing. To verify nothing is leaked, open DevTools → Network → WS frames. You will only see base64 ciphertext and 24-byte nonces.
@@ -123,15 +123,15 @@ The matching 32-byte private key (`secretKey`) lives only in the user's browser.
 
 ### Socket.IO events
 
-| Direction       | Event             | Payload                                                                 | Ack                                                            |
-| --------------- | ----------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------- |
-| client → server | `register`        | `{ pubKey }`                                                            | `{ ok, delivered }` (drains offline queue)                    |
-| client → server | `presence:check`  | `{ pubKey }`                                                            | `{ ok, online }`                                               |
-| client → server | `message`         | `{ to, nonce, ciphertext }` — all base64                                | `{ ok, delivered, queued?, ts }`                              |
-| client → server | `typing`          | `{ to, typing }`                                                        | —                                                              |
-| server → client | `message`         | `{ from, to, nonce, ciphertext, ts }`                                   | —                                                              |
-| server → client | `presence`        | `{ pubKey, online }`                                                    | —                                                              |
-| server → client | `typing`          | `{ from, typing }`                                                      | —                                                              |
+| Direction       | Event            | Payload                                  | Ack                                        |
+| --------------- | ---------------- | ---------------------------------------- | ------------------------------------------ |
+| client → server | `register`       | `{ pubKey }`                             | `{ ok, delivered }` (drains offline queue) |
+| client → server | `presence:check` | `{ pubKey }`                             | `{ ok, online }`                           |
+| client → server | `message`        | `{ to, nonce, ciphertext }` — all base64 | `{ ok, delivered, queued?, ts }`           |
+| client → server | `typing`         | `{ to, typing }`                         | —                                          |
+| server → client | `message`        | `{ from, to, nonce, ciphertext, ts }`    | —                                          |
+| server → client | `presence`       | `{ pubKey, online }`                     | —                                          |
+| server → client | `typing`         | `{ from, typing }`                       | —                                          |
 
 ### Plaintext payload (inside the box)
 
@@ -174,10 +174,10 @@ See [SECURITY.md](SECURITY.md) for the full threat model. Headlines:
 
 Environment variables read by `server.js`:
 
-| Variable | Default     | Description                          |
-| -------- | ----------- | ------------------------------------ |
-| `HOST`   | `127.0.0.1` | Bind address.                        |
-| `PORT`   | `3000`      | TCP port.                            |
+| Variable | Default     | Description   |
+| -------- | ----------- | ------------- |
+| `HOST`   | `127.0.0.1` | Bind address. |
+| `PORT`   | `3000`      | TCP port.     |
 
 For production:
 
@@ -256,7 +256,7 @@ Yes — copy the secret key from device A (Account → Show secret key) and impo
 SecureChat is meant to be small enough to read end-to-end in a single sitting. The full Signal Protocol is the right choice if you need forward secrecy and break-in recovery; the current design trades those properties for simplicity and auditability.
 
 **Is the relay the trusted party?**
-No — confidentiality and integrity hold even if the relay is fully compromised. The relay is trusted only for *availability* (delivering messages) and for not lying about presence/metadata. A motivated user could swap the relay URL with a peer-to-peer transport (libp2p, WebRTC) without touching the cryptography.
+No — confidentiality and integrity hold even if the relay is fully compromised. The relay is trusted only for _availability_ (delivering messages) and for not lying about presence/metadata. A motivated user could swap the relay URL with a peer-to-peer transport (libp2p, WebRTC) without touching the cryptography.
 
 **Where do contacts and message history live?**
 `localStorage` on each device. Nothing is sent to the server. If you clear site data you lose contacts and history (but if you backed up your secret key, your identity survives — your contacts can still reach you).

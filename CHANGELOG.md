@@ -7,6 +7,7 @@ adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+
 - Web hygiene files: `robots.txt`, `sitemap.xml`, `humans.txt`, `llms.txt`,
   and `/.well-known/security.txt` (RFC 9116).
 - `.repobility/access.yml` — endpoint-by-endpoint authorization matrix
@@ -15,6 +16,7 @@ adheres to [Semantic Versioning](https://semver.org/).
 - `.editorconfig` for cross-editor whitespace consistency.
 
 ### Changed
+
 - Replaced `Math.random()` with `crypto.getRandomValues` for message-ID
   generation in `public/app.js`. Closes Repobility finding `[SEC015]`.
 - `express.static` now serves dotfiles so `/.well-known/security.txt` is
@@ -23,6 +25,7 @@ adheres to [Semantic Versioning](https://semver.org/).
 ## [1.0.0] — 2026-05-10
 
 ### Added
+
 - Initial release.
 - End-to-end encrypted chat using NaCl `box` (X25519 + XSalsa20-Poly1305).
 - Express + Socket.IO relay (no persistent storage; offline message

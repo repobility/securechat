@@ -81,19 +81,19 @@ Three suites run under Node's built-in test runner:
 
 - `crypto.test.js` — loads `public/crypto-utils.js` into a `vm` sandbox with `nacl` / `nacl-util` bound as globals, asserts roundtrip, MAC rejection, nonce uniqueness, validation, and avatar/fingerprint determinism.
 - `server.test.js` — boots `server.js` on an ephemeral port, opens two `socket.io-client` connections, and asserts E2E delivery, validation rejection, presence broadcasts, and offline queue drain.
-- `auth.test.js` — six AUTH-* cases that prove the policy in `.repobility/access.yml`: no anonymous publish, server-stamped sender identity, recipient-routing isolation, presence ownership transfer on re-register, and rejection of invalid registrations.
+- `auth.test.js` — six AUTH-\* cases that prove the policy in `.repobility/access.yml`: no anonymous publish, server-stamped sender identity, recipient-routing isolation, presence ownership transfer on re-register, and rejection of invalid registrations.
 
 ## Wire protocol summary
 
-| Direction       | Event              | Payload (base64 except `typing`)                                |
-| --------------- | ------------------ | --------------------------------------------------------------- |
-| client → server | `register`         | `{ pubKey }`                                                    |
-| client → server | `presence:check`   | `{ pubKey }`                                                    |
-| client → server | `message`          | `{ to, nonce, ciphertext }`                                     |
-| client → server | `typing`           | `{ to, typing: bool }`                                          |
-| server → client | `message`          | `{ from, to, nonce, ciphertext, ts }` (server stamps `from`)    |
-| server → client | `presence`         | `{ pubKey, online: bool }`                                      |
-| server → client | `typing`           | `{ from, typing: bool }`                                        |
+| Direction       | Event            | Payload (base64 except `typing`)                             |
+| --------------- | ---------------- | ------------------------------------------------------------ |
+| client → server | `register`       | `{ pubKey }`                                                 |
+| client → server | `presence:check` | `{ pubKey }`                                                 |
+| client → server | `message`        | `{ to, nonce, ciphertext }`                                  |
+| client → server | `typing`         | `{ to, typing: bool }`                                       |
+| server → client | `message`        | `{ from, to, nonce, ciphertext, ts }` (server stamps `from`) |
+| server → client | `presence`       | `{ pubKey, online: bool }`                                   |
+| server → client | `typing`         | `{ from, typing: bool }`                                     |
 
 See [README.md](README.md#wire-protocol) for ack shapes and validation rules.
 
@@ -101,15 +101,15 @@ See [README.md](README.md#wire-protocol) for ack shapes and validation rules.
 
 See [SECURITY.md](SECURITY.md) for the full breakdown. Headline:
 
-| Adversary                          | Defended? |
-| ---------------------------------- | --------- |
-| Honest-but-curious relay operator  | ✅ confidentiality and integrity |
-| Passive network observer           | ✅ via TLS |
-| Active MITM                        | ✅ with TLS pinning + OOB fingerprint check |
-| Compromised peer                   | ❌ out of scope by definition |
-| Retroactive key compromise         | ❌ no forward secrecy (intentional simplicity trade-off) |
-| Malicious browser extension / XSS  | ⚠️ best-effort via strict CSP |
-| Compromised server delivering JS   | ⚠️ trust-the-server-once problem of any web E2E messenger |
+| Adversary                         | Defended?                                                 |
+| --------------------------------- | --------------------------------------------------------- |
+| Honest-but-curious relay operator | ✅ confidentiality and integrity                          |
+| Passive network observer          | ✅ via TLS                                                |
+| Active MITM                       | ✅ with TLS pinning + OOB fingerprint check               |
+| Compromised peer                  | ❌ out of scope by definition                             |
+| Retroactive key compromise        | ❌ no forward secrecy (intentional simplicity trade-off)  |
+| Malicious browser extension / XSS | ⚠️ best-effort via strict CSP                             |
+| Compromised server delivering JS  | ⚠️ trust-the-server-once problem of any web E2E messenger |
 
 ## Operational notes
 

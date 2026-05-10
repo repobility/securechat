@@ -23,26 +23,26 @@ CI runs the same `npm test` on Node 20, 22, and 24, plus `npm audit --omit=dev` 
 
 ## Project layout
 
-| Path                        | Purpose                                                      |
-| --------------------------- | ------------------------------------------------------------ |
-| `server.js`                 | Express + Socket.IO relay. Validation, routing, queueing.    |
-| `public/index.html`         | Single-page app shell. Strict CSP.                           |
-| `public/app.js`             | Wallet, contacts, chat, presence, encrypted send/receive.    |
-| `public/crypto-utils.js`    | `nacl.box` wrapper — keygen, encrypt, decrypt, validation.   |
-| `public/app.css`            | UI styles.                                                   |
-| `tests/crypto.test.js`      | Crypto-layer unit tests (loads browser module into a VM).    |
-| `tests/server.test.js`      | Boots the relay and exercises it with two socket.io clients. |
-| `tests/auth.test.js`        | AUTH-* cases — authorization invariants.                     |
-| `.repobility/access.yml`    | Endpoint-by-endpoint authorization matrix.                   |
-| `.github/workflows/ci.yml`  | CI: matrix tests, audit, syntax check.                       |
-| `docs/`                     | Repobility scan output and showcase artifacts.               |
+| Path                       | Purpose                                                      |
+| -------------------------- | ------------------------------------------------------------ |
+| `server.js`                | Express + Socket.IO relay. Validation, routing, queueing.    |
+| `public/index.html`        | Single-page app shell. Strict CSP.                           |
+| `public/app.js`            | Wallet, contacts, chat, presence, encrypted send/receive.    |
+| `public/crypto-utils.js`   | `nacl.box` wrapper — keygen, encrypt, decrypt, validation.   |
+| `public/app.css`           | UI styles.                                                   |
+| `tests/crypto.test.js`     | Crypto-layer unit tests (loads browser module into a VM).    |
+| `tests/server.test.js`     | Boots the relay and exercises it with two socket.io clients. |
+| `tests/auth.test.js`       | AUTH-\* cases — authorization invariants.                    |
+| `.repobility/access.yml`   | Endpoint-by-endpoint authorization matrix.                   |
+| `.github/workflows/ci.yml` | CI: matrix tests, audit, syntax check.                       |
+| `docs/`                    | Repobility scan output and showcase artifacts.               |
 
 ## Style
 
 - 2-space indentation, single quotes, semicolons, trailing commas in multi-line literals.
 - No `innerHTML` with user-influenced content. Use `textContent` and `createElement`.
 - All randomness goes through `crypto.getRandomValues` (browser) or `nacl.randomBytes` (any JS).
-- Comment the *why*, not the *what*. If the code is obvious, leave it alone.
+- Comment the _why_, not the _what_. If the code is obvious, leave it alone.
 
 ## Pull request checklist
 

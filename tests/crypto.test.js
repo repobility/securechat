@@ -46,7 +46,10 @@ test('walletFromSecretKey rejects malformed input', () => {
   // Junk that isn't even valid base64.
   assert.throws(() => SC.walletFromSecretKey('not-base64-at-all-!!'));
   // Valid base64 but the wrong length must fail with our explicit error.
-  assert.throws(() => SC.walletFromSecretKey(naclUtil.encodeBase64(new Uint8Array(31))), /32 bytes/);
+  assert.throws(
+    () => SC.walletFromSecretKey(naclUtil.encodeBase64(new Uint8Array(31))),
+    /32 bytes/,
+  );
 });
 
 test('isValidPublicKey accepts valid keys and rejects junk', () => {

@@ -80,7 +80,10 @@ function connect(wallet) {
         resolve(s);
       });
     });
-    s.on('connect_error', (e) => { clearTimeout(t); reject(e); });
+    s.on('connect_error', (e) => {
+      clearTimeout(t);
+      reject(e);
+    });
   });
 }
 
@@ -181,7 +184,10 @@ test('messages to an offline recipient are queued and delivered on register', as
   await once(c, 'connect');
   const wirePromise = new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('queued message never arrived')), 3000);
-    c.on('message', (env) => { clearTimeout(t); resolve(env); });
+    c.on('message', (env) => {
+      clearTimeout(t);
+      resolve(env);
+    });
   });
   await new Promise((r) => c.emit('register', { pubKey: carol.publicKey }, r));
   const wire = await wirePromise;
@@ -197,13 +203,17 @@ test('presence broadcasts on connect and disconnect', async () => {
   const d = await connect(dave);
 
   const onlineEvent = new Promise((resolve) => {
-    d.on('presence', (p) => { if (p.pubKey === erin.publicKey && p.online) resolve(p); });
+    d.on('presence', (p) => {
+      if (p.pubKey === erin.publicKey && p.online) resolve(p);
+    });
   });
   const e = await connect(erin);
   await onlineEvent;
 
   const offlineEvent = new Promise((resolve) => {
-    d.on('presence', (p) => { if (p.pubKey === erin.publicKey && !p.online) resolve(p); });
+    d.on('presence', (p) => {
+      if (p.pubKey === erin.publicKey && !p.online) resolve(p);
+    });
   });
   e.close();
   await offlineEvent;

@@ -1,4 +1,3 @@
-/* global nacl, nacl_util */
 /**
  * Crypto helpers built on TweetNaCl.
  *
@@ -111,7 +110,10 @@
       hash = (hash * 31 + pubKeyB64.charCodeAt(i)) >>> 0;
     }
     const hue = hash % 360;
-    const initials = pubKeyB64.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase();
+    const initials = pubKeyB64
+      .replace(/[^A-Za-z0-9]/g, '')
+      .slice(0, 2)
+      .toUpperCase();
     return {
       initials,
       bg: `hsl(${hue}, 55%, 38%)`,

@@ -1,6 +1,6 @@
 # Security model
 
-This document is the long-form companion to the security headlines in [README.md](README.md). It states what SecureChat tries to defend against, what it does *not* defend against, and the cryptographic and engineering reasoning behind both.
+This document is the long-form companion to the security headlines in [README.md](README.md). It states what SecureChat tries to defend against, what it does _not_ defend against, and the cryptographic and engineering reasoning behind both.
 
 The goal is to let a security-minded reader audit the project in a single sitting.
 
@@ -35,17 +35,17 @@ Adversaries are listed roughly from "most realistic" to "most powerful":
 
 **Defended.** The relay holds no private keys and only forwards opaque ciphertext. A malicious operator cannot recover plaintext.
 
-What they *can* see:
+What they _can_ see:
 
 - Sender public key, recipient public key, timestamp.
 - Connection metadata: IP address, user agent, presence/typing.
 - The size of every message (cipher overhead is fixed, so size ≈ plaintext length + 16-byte MAC).
 
-This is the metadata SecureChat does *not* try to hide. Signal hides slightly more with sealed-sender; Tor / mixnets hide more still. If hiding *who talks to whom* matters to you, this design is not enough.
+This is the metadata SecureChat does _not_ try to hide. Signal hides slightly more with sealed-sender; Tor / mixnets hide more still. If hiding _who talks to whom_ matters to you, this design is not enough.
 
 ### 2. A passive network observer (ISP, café Wi-Fi)
 
-**Defended, conditional on TLS.** The relay must be deployed behind HTTPS for all non-localhost use. With TLS, the observer sees only encrypted bytes plus IP-level metadata. Without TLS, they see ciphertext + headers in the clear, which is still *confidential* (the box crypto holds), but they get every piece of metadata the relay would.
+**Defended, conditional on TLS.** The relay must be deployed behind HTTPS for all non-localhost use. With TLS, the observer sees only encrypted bytes plus IP-level metadata. Without TLS, they see ciphertext + headers in the clear, which is still _confidential_ (the box crypto holds), but they get every piece of metadata the relay would.
 
 ### 3. An active network attacker (MITM)
 
@@ -83,7 +83,7 @@ A browser-extension adversary with permission to read every page can still exfil
 
 ### 7. A compromised server delivering a backdoored client
 
-**Not defended in code.** The server ships the JavaScript that does the encrypting. If the server is compromised, it can deliver a client that exfiltrates secret keys. This is the classic "trust the server *once*" problem of any web-delivered E2E messenger.
+**Not defended in code.** The server ships the JavaScript that does the encrypting. If the server is compromised, it can deliver a client that exfiltrates secret keys. This is the classic "trust the server _once_" problem of any web-delivered E2E messenger.
 
 Production deployments typically address this with code signing, reproducible builds, and a separate code-distribution path (browser extensions, native apps). For SecureChat, the answer is "audit the source you cloned, or run your own relay."
 
@@ -93,12 +93,12 @@ Production deployments typically address this with code signing, reproducible bu
 
 The relay does not trust client payloads. Every value is checked before it touches any state:
 
-| Field        | Regex / rule                                             | Source                                      |
-| ------------ | -------------------------------------------------------- | ------------------------------------------- |
-| `pubKey`     | `^[A-Za-z0-9+/]{43}=$` → 32 bytes                        | [server.js](server.js) `PUBKEY_RE`           |
-| `nonce`      | `^[A-Za-z0-9+/]{32}={0,2}$` → 24 bytes                   | [server.js](server.js) `NONCE_RE`            |
-| `ciphertext` | base64, non-empty, ≤ 64 KiB                              | [server.js](server.js) `isValidCiphertext`   |
-| `to` / `from`| Must pass pubkey check; `from` is locked to the socket's registered identity | [server.js](server.js) `socket.on('message')` |
+| Field         | Regex / rule                                                                 | Source                                        |
+| ------------- | ---------------------------------------------------------------------------- | --------------------------------------------- |
+| `pubKey`      | `^[A-Za-z0-9+/]{43}=$` → 32 bytes                                            | [server.js](server.js) `PUBKEY_RE`            |
+| `nonce`       | `^[A-Za-z0-9+/]{32}={0,2}$` → 24 bytes                                       | [server.js](server.js) `NONCE_RE`             |
+| `ciphertext`  | base64, non-empty, ≤ 64 KiB                                                  | [server.js](server.js) `isValidCiphertext`    |
+| `to` / `from` | Must pass pubkey check; `from` is locked to the socket's registered identity | [server.js](server.js) `socket.on('message')` |
 
 The Socket.IO `maxHttpBufferSize` is set to 128 KiB — small enough that ciphertext-flooding is bounded, large enough for normal use. Per-recipient offline queue is capped at 200 messages (oldest evicted) to bound memory under load.
 

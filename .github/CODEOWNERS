@@ -1,0 +1,10 @@
+# Default owner for everything in the repo.
+*                       @maljefairi
+
+# Cryptographic core — the wire format and the relay's validation surface.
+# Any change here is automatically routed for owner review.
+/server.js              @maljefairi
+/public/crypto-utils.js @maljefairi
+/.repobility/           @maljefairi
+/SECURITY.md            @maljefairi
+/tests/                 @maljefairi

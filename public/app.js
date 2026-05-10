@@ -1,4 +1,3 @@
-/* global io, SC_Crypto */
 /**
  * SecureChat front-end.
  *
@@ -34,7 +33,6 @@
   // ---------- DOM refs ----------
 
   const $ = (sel, root = document) => root.querySelector(sel);
-  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
   const els = {
     setupScreen: $('#setup-screen'),
@@ -151,7 +149,9 @@
     els.toast.textContent = message;
     els.toast.hidden = false;
     if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { els.toast.hidden = true; }, ms);
+    toastTimer = setTimeout(() => {
+      els.toast.hidden = true;
+    }, ms);
   }
 
   function openModal(title, contentNode) {
@@ -196,7 +196,12 @@
       ta.value = text;
       document.body.appendChild(ta);
       ta.select();
-      try { document.execCommand('copy'); toast('Copied'); } catch (_) { toast('Copy failed'); }
+      try {
+        document.execCommand('copy');
+        toast('Copied');
+      } catch (_) {
+        toast('Copy failed');
+      }
       ta.remove();
     }
   }
@@ -261,12 +266,16 @@
 
   els.btnRename.addEventListener('click', () => {
     const input = el('input', { type: 'text', maxlength: '40', value: state.wallet.name || '' });
-    const save = el('button', { class: 'primary', text: 'Save', onclick: () => {
-      state.wallet.name = (input.value || '').trim().slice(0, 40);
-      saveWallet(state.wallet);
-      renderIdentity();
-      closeModal();
-    }});
+    const save = el('button', {
+      class: 'primary',
+      text: 'Save',
+      onclick: () => {
+        state.wallet.name = (input.value || '').trim().slice(0, 40);
+        saveWallet(state.wallet);
+        renderIdentity();
+        closeModal();
+      },
+    });
     const cancel = el('button', { class: 'ghost', text: 'Cancel', onclick: closeModal });
     const body = el('div', {}, [
       el('label', { text: 'Display name (local only — not sent to anyone unless you tell them)' }),
@@ -278,12 +287,22 @@
   });
 
   function showSecretKeyBackup(isFirstTime = false) {
-    const warning = el('div', { class: 'warning', text:
-      'Your secret key IS your identity. Anyone who has it can impersonate you and read all messages sent to you. Store it somewhere safe (a password manager) and never share it.' });
+    const warning = el('div', {
+      class: 'warning',
+      text: 'Your secret key IS your identity. Anyone who has it can impersonate you and read all messages sent to you. Store it somewhere safe (a password manager) and never share it.',
+    });
     const ta = el('textarea', { rows: '3', readonly: 'true' });
     ta.value = state.wallet.secretKey;
-    const copy = el('button', { class: 'ghost', text: 'Copy secret key', onclick: () => copyToClipboard(state.wallet.secretKey) });
-    const close = el('button', { class: 'primary', text: isFirstTime ? "I've saved it" : 'Close', onclick: closeModal });
+    const copy = el('button', {
+      class: 'ghost',
+      text: 'Copy secret key',
+      onclick: () => copyToClipboard(state.wallet.secretKey),
+    });
+    const close = el('button', {
+      class: 'primary',
+      text: isFirstTime ? "I've saved it" : 'Close',
+      onclick: closeModal,
+    });
     const body = el('div', {}, [
       warning,
       el('label', { text: 'Secret key (base64, 32 bytes)' }),
@@ -295,33 +314,55 @@
   els.btnShowSecret.addEventListener('click', () => showSecretKeyBackup(false));
 
   els.btnMenu.addEventListener('click', () => {
-    const showPub = el('button', { class: 'ghost', text: 'Show full public key', onclick: () => {
-      const ta = el('textarea', { rows: '2', readonly: 'true' });
-      ta.value = state.wallet.publicKey;
-      const copy = el('button', { class: 'ghost', text: 'Copy', onclick: () => copyToClipboard(state.wallet.publicKey) });
-      const close = el('button', { class: 'primary', text: 'Close', onclick: closeModal });
-      const body = el('div', {}, [
-        el('p', { class: 'muted', text: 'Share this with people you want to chat with. It is safe to share.' }),
-        ta,
-        el('div', { class: 'actions' }, [copy, close]),
-      ]);
-      openModal('Your public key', body);
-    }});
-    const showSec = el('button', { class: 'ghost', text: 'Show secret key (sensitive)', onclick: () => { closeModal(); showSecretKeyBackup(false); }});
-    const logout = el('button', { class: 'ghost danger', text: 'Log out / wipe this device', onclick: () => {
-      closeModal();
-      confirmDialog(
-        'Wipe wallet from this device?',
-        'This deletes your wallet, contacts, and message history from this browser. If you have not backed up your secret key, your identity will be lost forever and messages sent to you will be undecryptable.',
-        'Wipe everything',
-        () => {
-          localStorage.removeItem(LS_WALLET);
-          localStorage.removeItem(LS_CONTACTS);
-          localStorage.removeItem(LS_THREADS);
-          location.reload();
-        },
-      );
-    }});
+    const showPub = el('button', {
+      class: 'ghost',
+      text: 'Show full public key',
+      onclick: () => {
+        const ta = el('textarea', { rows: '2', readonly: 'true' });
+        ta.value = state.wallet.publicKey;
+        const copy = el('button', {
+          class: 'ghost',
+          text: 'Copy',
+          onclick: () => copyToClipboard(state.wallet.publicKey),
+        });
+        const close = el('button', { class: 'primary', text: 'Close', onclick: closeModal });
+        const body = el('div', {}, [
+          el('p', {
+            class: 'muted',
+            text: 'Share this with people you want to chat with. It is safe to share.',
+          }),
+          ta,
+          el('div', { class: 'actions' }, [copy, close]),
+        ]);
+        openModal('Your public key', body);
+      },
+    });
+    const showSec = el('button', {
+      class: 'ghost',
+      text: 'Show secret key (sensitive)',
+      onclick: () => {
+        closeModal();
+        showSecretKeyBackup(false);
+      },
+    });
+    const logout = el('button', {
+      class: 'ghost danger',
+      text: 'Log out / wipe this device',
+      onclick: () => {
+        closeModal();
+        confirmDialog(
+          'Wipe wallet from this device?',
+          'This deletes your wallet, contacts, and message history from this browser. If you have not backed up your secret key, your identity will be lost forever and messages sent to you will be undecryptable.',
+          'Wipe everything',
+          () => {
+            localStorage.removeItem(LS_WALLET);
+            localStorage.removeItem(LS_CONTACTS);
+            localStorage.removeItem(LS_THREADS);
+            location.reload();
+          },
+        );
+      },
+    });
     const close = el('button', { class: 'ghost', text: 'Close', onclick: closeModal });
     const body = el('div', {}, [
       el('p', { class: 'muted', text: 'Your wallet & contacts are stored only in this browser.' }),
@@ -337,7 +378,14 @@
 
   function confirmDialog(title, message, confirmLabel, onConfirm) {
     const cancel = el('button', { class: 'ghost', text: 'Cancel', onclick: closeModal });
-    const ok = el('button', { class: 'primary', text: confirmLabel, onclick: () => { closeModal(); onConfirm(); }});
+    const ok = el('button', {
+      class: 'primary',
+      text: confirmLabel,
+      onclick: () => {
+        closeModal();
+        onConfirm();
+      },
+    });
     const body = el('div', {}, [
       el('p', { class: 'muted', text: message }),
       el('div', { class: 'actions' }, [cancel, ok]),
@@ -365,7 +413,10 @@
     els.contactList.replaceChildren();
     if (state.contacts.length === 0) {
       els.contactList.appendChild(
-        el('li', { class: 'empty-list', text: 'No contacts yet. Tap ＋ to add one with their public key.' }),
+        el('li', {
+          class: 'empty-list',
+          text: 'No contacts yet. Tap ＋ to add one with their public key.',
+        }),
       );
       return;
     }
@@ -378,52 +429,70 @@
     });
     for (const c of sorted) {
       const av = SC_Crypto.avatarFor(c.pubKey);
-      const avatar = el('div', { class: 'contact-avatar', style: `background:${av.bg}`, text: av.initials });
+      const avatar = el('div', {
+        class: 'contact-avatar',
+        style: `background:${av.bg}`,
+        text: av.initials,
+      });
       const meta = el('div', { class: 'contact-meta' }, [
         el('div', { class: 'contact-name', text: c.name || 'Unnamed' }),
         el('div', { class: 'contact-pubkey', text: SC_Crypto.fingerprint(c.pubKey) }),
       ]);
       const right = el('div', { class: 'contact-right' }, [
-        el('span', { class: 'dot ' + (c.online ? 'online' : 'offline'), title: c.online ? 'online' : 'offline' }),
+        el('span', {
+          class: 'dot ' + (c.online ? 'online' : 'offline'),
+          title: c.online ? 'online' : 'offline',
+        }),
         c.unread ? el('span', { class: 'contact-unread', text: String(c.unread) }) : null,
       ]);
-      const li = el('li', {
-        class: 'contact' + (state.activePeer === c.pubKey ? ' active' : ''),
-        onclick: () => selectContact(c.pubKey),
-      }, [avatar, meta, right]);
+      const li = el(
+        'li',
+        {
+          class: 'contact' + (state.activePeer === c.pubKey ? ' active' : ''),
+          onclick: () => selectContact(c.pubKey),
+        },
+        [avatar, meta, right],
+      );
       els.contactList.appendChild(li);
     }
   }
 
   els.btnAddContact.addEventListener('click', () => {
-    const pkInput = el('textarea', { rows: '3', placeholder: 'Paste their public key (44 base64 chars ending in =)' });
+    const pkInput = el('textarea', {
+      rows: '3',
+      placeholder: 'Paste their public key (44 base64 chars ending in =)',
+    });
     const nameInput = el('input', { type: 'text', maxlength: '40', placeholder: 'e.g. Alice' });
     const error = el('p', { class: 'error', hidden: 'true' });
     const cancel = el('button', { class: 'ghost', text: 'Cancel', onclick: closeModal });
-    const add = el('button', { class: 'primary', text: 'Add contact', onclick: () => {
-      const pk = (pkInput.value || '').trim();
-      if (!SC_Crypto.isValidPublicKey(pk)) {
-        error.textContent = 'That doesn\'t look like a valid public key.';
-        error.hidden = false;
-        return;
-      }
-      if (pk === state.wallet.publicKey) {
-        error.textContent = 'That is your own public key.';
-        error.hidden = false;
-        return;
-      }
-      if (findContact(pk)) {
-        error.textContent = 'That contact is already in your list.';
-        error.hidden = false;
-        return;
-      }
-      const name = (nameInput.value || '').trim().slice(0, 40);
-      ensureContact(pk, name);
-      checkPresence(pk);
-      renderContacts();
-      selectContact(pk);
-      closeModal();
-    }});
+    const add = el('button', {
+      class: 'primary',
+      text: 'Add contact',
+      onclick: () => {
+        const pk = (pkInput.value || '').trim();
+        if (!SC_Crypto.isValidPublicKey(pk)) {
+          error.textContent = "That doesn't look like a valid public key.";
+          error.hidden = false;
+          return;
+        }
+        if (pk === state.wallet.publicKey) {
+          error.textContent = 'That is your own public key.';
+          error.hidden = false;
+          return;
+        }
+        if (findContact(pk)) {
+          error.textContent = 'That contact is already in your list.';
+          error.hidden = false;
+          return;
+        }
+        const name = (nameInput.value || '').trim().slice(0, 40);
+        ensureContact(pk, name);
+        checkPresence(pk);
+        renderContacts();
+        selectContact(pk);
+        closeModal();
+      },
+    });
     const body = el('div', {}, [
       el('label', { text: 'Public key' }),
       pkInput,
@@ -481,9 +550,12 @@
   function fmtDay(ts) {
     const d = new Date(ts);
     const today = new Date();
-    const yest = new Date(); yest.setDate(today.getDate() - 1);
+    const yest = new Date();
+    yest.setDate(today.getDate() - 1);
     const sameDay = (a, b) =>
-      a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
     if (sameDay(d, today)) return 'Today';
     if (sameDay(d, yest)) return 'Yesterday';
     return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
@@ -540,17 +612,19 @@
     if (m.dir === 'out') {
       const status = el('span', { class: 'bubble-status ' + (m.status || '') });
       status.textContent =
-        m.status === 'sending' ? ' · sending…' :
-        m.status === 'queued' ? ' · queued (offline)' :
-        m.status === 'delivered' ? ' · delivered' :
-        m.status === 'failed' ? ' · failed' : '';
+        m.status === 'sending'
+          ? ' · sending…'
+          : m.status === 'queued'
+            ? ' · queued (offline)'
+            : m.status === 'delivered'
+              ? ' · delivered'
+              : m.status === 'failed'
+                ? ' · failed'
+                : '';
       meta.appendChild(status);
     }
     return el('div', { class: 'message-row ' + dirClass }, [
-      el('div', {}, [
-        el('div', { class: bubbleClass, text: m.text }),
-        meta,
-      ]),
+      el('div', {}, [el('div', { class: bubbleClass, text: m.text }), meta]),
     ]);
   }
 
@@ -614,14 +688,20 @@
       return;
     }
 
-    state.socket.emit('message', { to: peer, nonce: envelope.nonce, ciphertext: envelope.ciphertext }, (ack) => {
-      if (!ack || !ack.ok) {
-        updateMessageStatus(peer, id, { status: 'failed' });
-        return;
-      }
-      if (ack.delivered) updateMessageStatus(peer, id, { status: 'delivered', ts: ack.ts || Date.now() });
-      else if (ack.queued) updateMessageStatus(peer, id, { status: 'queued', ts: ack.ts || Date.now() });
-    });
+    state.socket.emit(
+      'message',
+      { to: peer, nonce: envelope.nonce, ciphertext: envelope.ciphertext },
+      (ack) => {
+        if (!ack || !ack.ok) {
+          updateMessageStatus(peer, id, { status: 'failed' });
+          return;
+        }
+        if (ack.delivered)
+          updateMessageStatus(peer, id, { status: 'delivered', ts: ack.ts || Date.now() });
+        else if (ack.queued)
+          updateMessageStatus(peer, id, { status: 'queued', ts: ack.ts || Date.now() });
+      },
+    );
 
     if (state.typingTimers[peer]) clearTimeout(state.typingTimers[peer]);
     state.socket.emit('typing', { to: peer, typing: false });
@@ -741,7 +821,12 @@
 
   function handleIncoming(env) {
     if (!env || !env.from || !env.nonce || !env.ciphertext) return;
-    const decoded = SC_Crypto.decryptMessage(env.ciphertext, env.nonce, env.from, state.wallet.secretKey);
+    const decoded = SC_Crypto.decryptMessage(
+      env.ciphertext,
+      env.nonce,
+      env.from,
+      state.wallet.secretKey,
+    );
     if (!decoded) {
       // Could not decrypt — wrong recipient, tampered, or unknown sender format.
       // We surface this inline only if we already know the sender; otherwise drop silently.
@@ -783,7 +868,9 @@
       const title = contact.name || SC_Crypto.fingerprint(contact.pubKey);
       const preview = text.length > 80 ? text.slice(0, 80) + '…' : text;
       new Notification('SecureChat — ' + title, { body: preview, silent: false });
-    } catch (_) { /* ignore */ }
+    } catch (_) {
+      /* ignore */
+    }
   }
 
   // ---------- Boot ----------
@@ -800,7 +887,11 @@
 
     if ('Notification' in window && Notification.permission === 'default') {
       // Best-effort: ask once. Browsers ignore non-user-gestured calls; this is fine.
-      try { Notification.requestPermission(); } catch (_) { /* ignore */ }
+      try {
+        Notification.requestPermission();
+      } catch (_) {
+        /* ignore */
+      }
     }
 
     connect();

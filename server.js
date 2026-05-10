@@ -32,10 +32,7 @@ const B64_RE = /^[A-Za-z0-9+/]+={0,2}$/;
 const isValidPubKey = (s) => typeof s === 'string' && PUBKEY_RE.test(s);
 const isValidNonce = (s) => typeof s === 'string' && NONCE_RE.test(s);
 const isValidCiphertext = (s) =>
-  typeof s === 'string' &&
-  s.length > 0 &&
-  s.length <= MAX_CIPHERTEXT_BYTES &&
-  B64_RE.test(s);
+  typeof s === 'string' && s.length > 0 && s.length <= MAX_CIPHERTEXT_BYTES && B64_RE.test(s);
 
 // pubkey -> Set<socketId>
 const onlineByPubKey = new Map();
@@ -75,10 +72,12 @@ function broadcastPresence(pubKey, online) {
 
 // Static frontend.
 // dotfiles: 'allow' so /.well-known/security.txt (RFC 9116) is served.
-app.use(express.static(path.join(__dirname, 'public'), {
-  extensions: ['html'],
-  dotfiles: 'allow',
-}));
+app.use(
+  express.static(path.join(__dirname, 'public'), {
+    extensions: ['html'],
+    dotfiles: 'allow',
+  }),
+);
 
 // Serve the NaCl libs straight from node_modules so the browser never depends on a CDN
 app.get('/vendor/nacl/nacl.min.js', (_req, res) => {

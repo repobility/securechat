@@ -29,7 +29,10 @@ test.before(async () => {
   await new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('server start timeout')), 8000);
     server.stdout.on('data', (b) => {
-      if (b.toString().includes('listening')) { clearTimeout(t); resolve(); }
+      if (b.toString().includes('listening')) {
+        clearTimeout(t);
+        resolve();
+      }
     });
     server.stderr.on('data', (b) => process.stderr.write(b));
   });
@@ -60,7 +63,10 @@ function connect(wallet) {
         ack && ack.ok ? resolve(s) : reject(new Error('register failed'));
       });
     });
-    s.on('connect_error', (e) => { clearTimeout(t); reject(e); });
+    s.on('connect_error', (e) => {
+      clearTimeout(t);
+      reject(e);
+    });
   });
 }
 
@@ -89,15 +95,23 @@ test('AUTH-02: server stamps `from` with the registered identity (sender cannot 
   const got = new Promise((resolve) => b.once('message', resolve));
   const env = encrypt('imposter', bob.publicKey, mallory.secretKey);
   await new Promise((r) =>
-    m.emit('message', {
-      to: bob.publicKey,
-      nonce: env.nonce,
-      ciphertext: env.ciphertext,
-      from: alice.publicKey, // attempted forgery
-    }, r),
+    m.emit(
+      'message',
+      {
+        to: bob.publicKey,
+        nonce: env.nonce,
+        ciphertext: env.ciphertext,
+        from: alice.publicKey, // attempted forgery
+      },
+      r,
+    ),
   );
   const wire = await got;
-  assert.equal(wire.from, mallory.publicKey, 'server must use the registered identity, not the forged from');
+  assert.equal(
+    wire.from,
+    mallory.publicKey,
+    'server must use the registered identity, not the forged from',
+  );
 
   m.close();
   b.close();
@@ -144,7 +158,9 @@ test('AUTH-04: recipient routing is locked to the destination pubkey (no cross-d
   await new Promise((r) => setTimeout(r, 250));
   assert.equal(carolGot.length, 0, 'unrelated recipient must not receive the envelope');
 
-  a.close(); b.close(); c.close();
+  a.close();
+  b.close();
+  c.close();
 });
 
 test('AUTH-05: register changes presence ownership (re-registering replaces identity)', async () => {
@@ -160,8 +176,12 @@ test('AUTH-05: register changes presence ownership (re-registering replaces iden
   // Independent observer checks both presences.
   const observer = io(URL, { transports: ['websocket'], reconnection: false });
   await once(observer, 'connect');
-  const w1online = await new Promise((r) => observer.emit('presence:check', { pubKey: w1.publicKey }, r));
-  const w2online = await new Promise((r) => observer.emit('presence:check', { pubKey: w2.publicKey }, r));
+  const w1online = await new Promise((r) =>
+    observer.emit('presence:check', { pubKey: w1.publicKey }, r),
+  );
+  const w2online = await new Promise((r) =>
+    observer.emit('presence:check', { pubKey: w2.publicKey }, r),
+  );
   assert.equal(w1online.online, false, 'w1 must be released after re-register');
   assert.equal(w2online.online, true, 'w2 must be bound after re-register');
 

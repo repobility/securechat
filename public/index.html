@@ -4,7 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="referrer" content="no-referrer" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; base-uri 'self'; form-action 'none'; frame-ancestors 'none';" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; base-uri 'self'; form-action 'none'; frame-ancestors 'none';"
+    />
     <title>SecureChat — End-to-End Encrypted</title>
     <link rel="stylesheet" href="/app.css" />
   </head>
@@ -41,8 +44,16 @@
 
         <details class="create-pane" id="create-pane">
           <summary>Display name</summary>
-          <label for="create-name">Optional &mdash; shown only to you and contacts you share it with.</label>
-          <input id="create-name" type="text" maxlength="40" autocomplete="off" placeholder="Anonymous" />
+          <label for="create-name"
+            >Optional &mdash; shown only to you and contacts you share it with.</label
+          >
+          <input
+            id="create-name"
+            type="text"
+            maxlength="40"
+            autocomplete="off"
+            placeholder="Anonymous"
+          />
         </details>
 
         <p class="fineprint">
@@ -61,7 +72,9 @@
             <span class="lock">🔐</span>
             <span>SecureChat</span>
           </div>
-          <button id="btn-menu" class="icon-btn" aria-label="Account menu" title="Account">⋯</button>
+          <button id="btn-menu" class="icon-btn" aria-label="Account menu" title="Account">
+            ⋯
+          </button>
         </header>
 
         <section class="my-identity" aria-labelledby="my-identity-title">
@@ -96,18 +109,30 @@
             <div class="chat-sub">
               <span class="dot" id="peer-status"></span>
               <code class="pubkey" id="chat-pubkey"></code>
-              <button class="icon-btn small" id="btn-copy-peer" title="Copy contact public key">📋</button>
+              <button class="icon-btn small" id="btn-copy-peer" title="Copy contact public key">
+                📋
+              </button>
             </div>
           </div>
           <div class="chat-tools">
-            <button id="btn-clear-thread" class="ghost small" title="Clear local message history with this contact">Clear thread</button>
-            <button id="btn-remove-contact" class="ghost small danger" title="Remove contact">Remove</button>
+            <button
+              id="btn-clear-thread"
+              class="ghost small"
+              title="Clear local message history with this contact"
+            >
+              Clear thread
+            </button>
+            <button id="btn-remove-contact" class="ghost small danger" title="Remove contact">
+              Remove
+            </button>
           </div>
         </header>
 
         <div class="messages" id="messages">
           <div class="empty-chat" id="empty-chat">
-            <p class="muted">Pick a contact, or add one with their public key, to start an encrypted conversation.</p>
+            <p class="muted">
+              Pick a contact, or add one with their public key, to start an encrypted conversation.
+            </p>
           </div>
         </div>
 

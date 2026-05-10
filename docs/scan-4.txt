@@ -1,0 +1,27 @@
+============================================================
+Repobility scan #4 — after method/path split in access.yml
+============================================================
+Repo:        https://github.com/repobility/securechat
+Started:     2026-05-10T05:44:23+03:00 (epoch 1778381063.589)
+Duration:    33.374 s
+
+Grade:       A-   (84.2 / 100)
+Benchmark:   95.6th percentile (industry avg 58.1)
+Stats:       6 files, 1,678 lines of code
+
+Breakdown                              Δ vs scan #2
+---------                              ------------
+  Security        ██████████ 100 / 100  +1   (now perfect)
+  Testing         ████████░░  85 / 100   ±0
+  Structure       ███████░░░  75 / 100   ±0
+  Documentation   ████████░░  85 / 100   ±0
+  Practices       ███████░░░  75 / 100   ±0
+
+Issues found: 0  (down from 10 → 2 → 1 → 0)
+
+To reach A+:
+  Structure   75 → 95   needs module separation, smaller server.js
+  Practices   75 → 95   needs lint, dependabot, CODEOWNERS, PR templates,
+                        coverage report, release tags
+  Testing     85 → 95   needs coverage in CI
+  Documentation 85 → 95 needs JSDoc, ADRs

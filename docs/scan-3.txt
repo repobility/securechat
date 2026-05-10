@@ -1,0 +1,22 @@
+============================================================
+Repobility scan #3 — after first access.yml fix attempt
+============================================================
+Repo:        https://github.com/repobility/securechat
+Started:     2026-05-10T05:42:45+03:00 (epoch 1778380965.879)
+Duration:    20.058 s
+
+Grade:       A-   (84.0 / 100)         unchanged from scan #2
+Benchmark:   96th percentile
+
+Findings    (down from 2 to 1)
+------------------------------
+  ✓  [AUC010] Access policy could not be fully parsed   — RESOLVED
+  🟡 [AUC007] Access policy does not cover discovered routes:
+       3 discovered route(s) are not matched by .repobility/access.yml
+         GET /vendor/nacl/nacl.min.js     server.js:84
+         GET /vendor/nacl/nacl-util.min.js server.js:87
+         GET /healthz                      server.js:91
+
+Diagnosis: scanner emits routes as { method, path } pairs. My YAML
+combined them as "path: GET /healthz" which never matched. Splitting
+the keys is the next iteration.

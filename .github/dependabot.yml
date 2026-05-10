@@ -1,0 +1,38 @@
+version: 2
+
+updates:
+  # JavaScript dependencies — the relay and tests.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Qatar
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - npm
+    commit-message:
+      prefix: deps
+      include: scope
+    groups:
+      production:
+        dependency-type: production
+      development:
+        dependency-type: development
+
+  # Pinned GitHub Actions used in CI.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Qatar
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: ci(deps)
+      include: scope
