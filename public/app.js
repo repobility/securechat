@@ -84,11 +84,14 @@
 
   // ---------- Random IDs ----------
 
-  // CSPRNG-backed unique IDs for messages and other UI elements. Math.random
-  // would be sufficient for non-security uses but the linter (and the
-  // [SEC015] check) treats any PRNG in this file as suspicious because the
-  // file also handles wallet keys; using crypto.getRandomValues keeps the
-  // whole module on one consistent randomness story.
+  /**
+   * CSPRNG-backed unique ID generator for messages and other UI elements.
+   * Uses crypto.getRandomValues so the whole module stays on one consistent
+   * randomness story (the file also handles wallet keys).
+   *
+   * @param {number} [byteLength=6]
+   * @returns {string} Hex-encoded random bytes.
+   */
   function randomId(byteLength = 6) {
     const bytes = new Uint8Array(byteLength);
     crypto.getRandomValues(bytes);

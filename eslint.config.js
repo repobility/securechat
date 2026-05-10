@@ -6,11 +6,25 @@
 const js = require('@eslint/js');
 const globals = require('globals');
 
-module.exports = [
-  js.configs.recommended,
+/**
+ * Build the ESLint flat config.
+ * @returns {import('eslint').Linter.Config[]}
+ */
+function buildConfig() {
+  return [
+    js.configs.recommended,
+    nodeLayer(),
+    browserLayer(),
+    { ignores: ['node_modules/', 'public/vendor/', 'coverage/', 'dist/', '.cache/'] },
+  ];
+}
 
-  {
-    // Server, tests, and config — Node environment.
+/**
+ * Lint rules for server, tests, and config files (Node environment).
+ * @returns {import('eslint').Linter.Config}
+ */
+function nodeLayer() {
+  return {
     files: ['server.js', 'src/**/*.js', 'tests/**/*.js', 'eslint.config.js'],
     languageOptions: {
       ecmaVersion: 2023,
@@ -34,10 +48,17 @@ module.exports = [
       'no-var': 'error',
       'prefer-const': 'error',
     },
-  },
+  };
+}
 
-  {
-    // Browser-loaded JavaScript — no module system, runs in window globals.
+/**
+ * Lint rules for browser-loaded JavaScript. No module system; runs in
+ * window globals. Bans `Math.random` so security-adjacent code uses
+ * crypto.getRandomValues instead.
+ * @returns {import('eslint').Linter.Config}
+ */
+function browserLayer() {
+  return {
     files: ['public/**/*.js'],
     languageOptions: {
       ecmaVersion: 2023,
@@ -71,9 +92,7 @@ module.exports = [
         },
       ],
     },
-  },
+  };
+}
 
-  {
-    ignores: ['node_modules/', 'public/vendor/', 'coverage/', 'dist/', '.cache/'],
-  },
-];
+module.exports = buildConfig();
