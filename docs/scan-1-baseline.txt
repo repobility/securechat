@@ -1,0 +1,41 @@
+============================================================
+Repobility scan #1 — BASELINE (commit a86f54... initial)
+============================================================
+Repo:        https://github.com/repobility/securechat
+Started:     2026-05-10T05:27:08.521+03:00
+Finished:    2026-05-10T05:27:50.415+03:00
+Duration:    41.893 s   (Repobility quoted "30–60 s")
+
+Grade:       C  (55.1 / 100)
+Benchmark:   69th percentile of JavaScript repos (128,115 compared)
+Stats:       3 files, 1,105 lines of code (source files only)
+
+Breakdown
+---------
+  Security        ████████░░  97 / 100
+  Testing         ░░░░░░░░░░   0 / 100   ← biggest gap
+  Structure       ██████░░░░  60 / 100
+  Documentation   █████░░░░░  59 / 100
+  Practices       ████░░░░░░  40 / 100
+
+Roast text
+----------
+  "This repo is held together by duct tape and optimism."
+  "Above average (69th percentile) for javascript. Not bad."
+
+Issues found
+------------
+  🟠  No test files found
+  🟡  No CI/CD configuration found
+  ⚪  [SEC015] Insecure Randomness for Security: Weak PRNG used in
+       security-sensitive context. Output is predictable.
+       (public/app.js)
+  🟡  [AUC001] No Repobility access matrix policy found:
+       repository uses web/API frameworks but does not define
+       .repobility/access.yml or equivalent authorization documentation.
+  🔵  [AUC005] No authorization-focused tests detected
+  🔵  Public web app has no robots.txt
+  🔵  Public web app has no sitemap (sitemap.xml)
+  🔵  Public docs site has no llms.txt
+  🔵  Public web app has no humans.txt
+  🟡  Public web service has no security.txt (.well-known/security.txt)

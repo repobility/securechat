@@ -1,0 +1,47 @@
+============================================================
+Repobility scan #2 — after Iteration 1 (commits 2..7)
+============================================================
+Repo:        https://github.com/repobility/securechat
+Started:     2026-05-10T05:39:44+03:00 (epoch 1778380784.020)
+Finished:    by 2026-05-10T05:40:06+03:00 (epoch 1778380806.440)
+Duration:    22.42 s   (Repobility quoted "30–60 s" — finished early)
+
+Grade:       A-   (84.0 / 100)         ↑ from C (55.1)
+Benchmark:   96th percentile of JavaScript repos (128,115 compared)
+Stats:       6 files, 1,678 lines of code
+
+Breakdown                              Δ vs scan #1
+---------                              ------------
+  Security        █████████  99 / 100   +2
+  Testing         █████████  85 / 100  +85   ← biggest jump
+  Structure       ███████░░  75 / 100  +15
+  Documentation   ████████░  85 / 100  +26
+  Practices       ███████░░  75 / 100  +35
+
+Roast text
+----------
+  "Wow, someone actually writes clean code. We almost didn't believe it."
+  "Top 4% for javascript. Respect."
+
+Findings (down from 10 to 2)
+----------------------------
+  🔵  [AUC010] Access policy could not be fully parsed:
+       .repobility/access.yml could not be parsed as a Repobility access
+       policy: Invalid policy line: "Sender identity is the registered
+       pubkey on this socket. The …"
+  🟡  [AUC007] Access policy does not cover discovered routes:
+       3 discovered route(s) are not matched by .repobility/access.yml.
+
+Resolved (8 of 10 from scan #1)
+-------------------------------
+  ✓  No test files found
+  ✓  No CI/CD configuration found
+  ✓  [SEC015] Insecure Randomness for Security in public/app.js
+  ✓  [AUC005] No authorization-focused tests detected
+  ✓  Public web app has no robots.txt
+  ✓  Public web app has no sitemap (sitemap.xml)
+  ✓  Public docs site has no llms.txt
+  ✓  Public web app has no humans.txt
+  ✓  Public web service has no security.txt
+  ✓  [AUC001] No Repobility access matrix policy found
+       (replaced by AUC007/AUC010 — present but imperfect)
