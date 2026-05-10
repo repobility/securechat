@@ -84,6 +84,21 @@
     toast: $('#toast'),
   };
 
+  // ---------- Random IDs ----------
+
+  // CSPRNG-backed unique IDs for messages and other UI elements. Math.random
+  // would be sufficient for non-security uses but the linter (and the
+  // [SEC015] check) treats any PRNG in this file as suspicious because the
+  // file also handles wallet keys; using crypto.getRandomValues keeps the
+  // whole module on one consistent randomness story.
+  function randomId(byteLength = 6) {
+    const bytes = new Uint8Array(byteLength);
+    crypto.getRandomValues(bytes);
+    let hex = '';
+    for (const b of bytes) hex += b.toString(16).padStart(2, '0');
+    return hex;
+  }
+
   // ---------- Storage helpers ----------
 
   function loadWallet() {
@@ -588,7 +603,7 @@
       return;
     }
 
-    const id = 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    const id = 'm_' + Date.now() + '_' + randomId(6);
     appendMessage(peer, { id, dir: 'out', text, ts: Date.now(), status: 'sending' });
     els.composerInput.value = '';
     autosize(els.composerInput);
@@ -744,7 +759,7 @@
     }
 
     const c = ensureContact(env.from, '');
-    const id = 'm_' + (env.ts || Date.now()) + '_' + Math.random().toString(36).slice(2, 8);
+    const id = 'm_' + (env.ts || Date.now()) + '_' + randomId(6);
     appendMessage(env.from, {
       id,
       dir: 'in',
