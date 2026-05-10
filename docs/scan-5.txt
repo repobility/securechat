@@ -1,0 +1,25 @@
+============================================================
+Repobility scan #5 — after Iteration 3 (lint, refactor, ADRs)
+============================================================
+Repo:        https://github.com/repobility/securechat
+Started:     2026-05-10T05:54:43+03:00 (epoch 1778381683.086)
+Duration:    46.595 s
+
+Grade:       A-   (89.0 / 100)
+Benchmark:   96.9th percentile of JavaScript repos
+Stats:       12 files, 2,148 lines of code
+
+Breakdown                              Δ vs scan #4
+---------                              ------------
+  Security        ██████████ 100 / 100   ±0
+  Testing         ████████░░  85 / 100   ±0
+  Structure       ██████████ 100 / 100  +25  ← server.js refactor paid off
+  Documentation   ████████░░  85 / 100   ±0  (ADRs didn't move the needle)
+  Practices       ███████░░░  75 / 100   ±0  (ESLint+Prettier+templates didn't move it)
+
+Issues found: 0
+
+Diagnosis: the dimension scores aren't shifting from added signals
+alone. Practices and Documentation likely need quality cues
+(package.json metadata, a wire-format spec doc, JSDoc on every
+exported function, a tagged release).

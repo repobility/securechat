@@ -3,7 +3,39 @@
   "version": "1.0.0",
   "description": "End-to-end encrypted chat using public/private wallet keys (X25519 + XSalsa20 + Poly1305).",
   "private": true,
+  "license": "MIT",
+  "author": "Mohammed Aljefairi <mohammedaljefairi@gmail.com>",
+  "homepage": "https://github.com/repobility/securechat#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/repobility/securechat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/repobility/securechat/issues"
+  },
+  "keywords": [
+    "e2e",
+    "end-to-end-encryption",
+    "chat",
+    "messenger",
+    "x25519",
+    "nacl",
+    "tweetnacl",
+    "wallet",
+    "websocket",
+    "socket.io"
+  ],
   "main": "server.js",
+  "files": [
+    "server.js",
+    "src/",
+    "public/",
+    "README.md",
+    "SECURITY.md",
+    "ARCHITECTURE.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",

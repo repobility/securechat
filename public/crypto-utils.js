@@ -20,6 +20,20 @@
   const PROTO_VERSION = 1;
   const MAX_PLAINTEXT_BYTES = 16 * 1024;
 
+  /**
+   * @typedef {{ publicKey: string, secretKey: string }} Wallet
+   *   Both fields are base64-encoded 32-byte X25519 keys.
+   */
+
+  /**
+   * @typedef {{ nonce: string, ciphertext: string }} EncryptedEnvelope
+   *   Both fields are base64-encoded; ciphertext includes the Poly1305 MAC.
+   */
+
+  /**
+   * Generate a fresh X25519 keypair.
+   * @returns {Wallet}
+   */
   function generateWallet() {
     const kp = nacl.box.keyPair();
     return {
@@ -28,6 +42,12 @@
     };
   }
 
+  /**
+   * Restore a wallet from a previously-saved secret key.
+   * @param {string} secretKeyB64 — base64-encoded 32-byte X25519 secret key.
+   * @returns {Wallet}
+   * @throws if the input is not exactly 32 bytes after base64 decoding.
+   */
   function walletFromSecretKey(secretKeyB64) {
     const sk = util.decodeBase64(secretKeyB64.trim());
     if (sk.length !== nacl.box.secretKeyLength) {
@@ -40,6 +60,11 @@
     };
   }
 
+  /**
+   * Length-checking validator for X25519 public keys on the wire.
+   * @param {unknown} b64
+   * @returns {boolean}
+   */
   function isValidPublicKey(b64) {
     if (typeof b64 !== 'string') return false;
     try {
@@ -50,6 +75,13 @@
     }
   }
 
+  /**
+   * Short identifier suitable for displaying a pubkey in a contact card.
+   * Deterministic given the input, lossy by design — never use for
+   * cryptographic comparisons.
+   * @param {string} pubKeyB64
+   * @returns {string}
+   */
   function fingerprint(pubKeyB64) {
     if (!pubKeyB64) return '';
     const s = pubKeyB64.replace(/=+$/, '');
@@ -57,8 +89,15 @@
   }
 
   /**
-   * Encrypt a plaintext string for `recipientPubKey` using the sender's wallet.
-   * Returns base64-encoded { nonce, ciphertext }.
+   * Encrypt a plaintext string for `recipientPubKey` using the sender's
+   * wallet. The plaintext is wrapped in a versioned inner envelope
+   * `{ v: 1, t, ts }` so the protocol can evolve.
+   *
+   * @param {string} plaintext        Up to 16 KiB of UTF-8 text.
+   * @param {string} recipientPubKey  Base64 X25519 public key.
+   * @param {string} senderSecretKey  Base64 X25519 secret key.
+   * @returns {EncryptedEnvelope}
+   * @throws if plaintext is too long, not a string, or encryption fails.
    */
   function encryptMessage(plaintext, recipientPubKey, senderSecretKey) {
     if (typeof plaintext !== 'string') throw new Error('plaintext must be a string');
@@ -81,7 +120,16 @@
 
   /**
    * Decrypt a ciphertext from `senderPubKey` using the receiver's wallet.
-   * Returns { text, ts } on success or null if authentication fails (forged or tampered).
+   *
+   * Returns null on every failure mode (forged sender, wrong recipient,
+   * tampered nonce or ciphertext, bad inner envelope). Callers cannot
+   * distinguish — by design, so error oracles cannot help an attacker.
+   *
+   * @param {string} ciphertextB64
+   * @param {string} nonceB64
+   * @param {string} senderPubKey
+   * @param {string} receiverSecretKey
+   * @returns {{ text: string, ts: number } | null}
    */
   function decryptMessage(ciphertextB64, nonceB64, senderPubKey, receiverSecretKey) {
     try {
@@ -101,8 +149,15 @@
   }
 
   /**
-   * Deterministic 2-letter avatar initials and HSL color from a public key.
-   * Pure function of the pubkey, so a contact is recognizable even before a name is set.
+   * Deterministic 2-letter avatar initials and an HSL background color
+   * derived from a public key. Pure function of the pubkey so a contact
+   * is recognizable even before a display name is set.
+   *
+   * Not security-relevant — the hash is a tiny FNV-style accumulator and
+   * MUST NOT be used for any cryptographic purpose.
+   *
+   * @param {string} pubKeyB64
+   * @returns {{ initials: string, bg: string }}
    */
   function avatarFor(pubKeyB64) {
     let hash = 0;
