@@ -1,0 +1,21 @@
+/* TEAM */
+
+  Lead developer: Mohammed Aljefairi
+  Site:           https://github.com/repobility
+  Twitter:        —
+  Location:       —
+
+  AI pair-programming: Claude (Anthropic), via Claude Code
+
+/* SITE */
+
+  Last update:  2026/05/10
+  Standards:    HTML5, CSS3, ES2022, Web Crypto, WebSockets
+  Cryptography: X25519 ECDH + XSalsa20-Poly1305 (NaCl box)
+  Components:   tweetnacl, express, socket.io
+  Software:     Node.js 18+, any modern browser
+
+/* THANKS */
+
+  Daniel J. Bernstein and the NaCl team for the box construction.
+  The TweetNaCl maintainers for the auditable JS port.

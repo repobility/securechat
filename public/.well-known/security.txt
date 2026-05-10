@@ -1,0 +1,9 @@
+# SecureChat security contact (RFC 9116)
+# https://github.com/repobility/securechat/blob/main/SECURITY.md
+
+Contact: mailto:mohammedaljefairi@gmail.com
+Expires: 2027-05-10T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://github.com/repobility/securechat/blob/main/.well-known/security.txt
+Policy: https://github.com/repobility/securechat/blob/main/SECURITY.md
+Acknowledgments: https://github.com/repobility/securechat/security/advisories

@@ -73,8 +73,12 @@ function broadcastPresence(pubKey, online) {
   io.emit('presence', { pubKey, online });
 }
 
-// Static frontend
-app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+// Static frontend.
+// dotfiles: 'allow' so /.well-known/security.txt (RFC 9116) is served.
+app.use(express.static(path.join(__dirname, 'public'), {
+  extensions: ['html'],
+  dotfiles: 'allow',
+}));
 
 // Serve the NaCl libs straight from node_modules so the browser never depends on a CDN
 app.get('/vendor/nacl/nacl.min.js', (_req, res) => {

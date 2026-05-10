@@ -1,0 +1,17 @@
+# SecureChat — robots policy
+#
+# This is an interactive single-page app, not a content site. There is
+# nothing here for search engines to index — every conversation is held
+# locally in users' browsers and is never persisted server-side.
+
+User-agent: *
+Disallow: /socket.io/
+Disallow: /healthz
+Disallow: /vendor/
+
+# The app itself is fine to index, but there's no useful crawl target
+# beyond the landing page. We allow `/` so a search result for the project
+# resolves to a usable launch URL.
+Allow: /$
+
+Sitemap: /sitemap.xml

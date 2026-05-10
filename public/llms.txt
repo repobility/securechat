@@ -1,0 +1,49 @@
+# SecureChat
+
+> An end-to-end encrypted chat system that uses a wallet-style X25519
+> keypair as the user's identity. The server is a stateless relay that
+> only ever sees ciphertext and routing metadata.
+
+SecureChat is a small, auditable demonstration of how to build E2E
+encrypted messaging without a server-side identity provider. It is
+designed to be readable end-to-end in a single sitting (~1,500 lines).
+
+## Design in one sentence
+
+Each user generates an X25519 keypair in the browser; messages are
+encrypted with NaCl `box` (X25519 + XSalsa20 + Poly1305); the server
+relays opaque ciphertext and cannot decrypt anything.
+
+## Documentation
+
+- [README.md](README.md): Quickstart, architecture, wire protocol,
+  configuration, FAQ.
+- [SECURITY.md](SECURITY.md): Threat model, cryptographic primitives,
+  intentional non-goals, and reporting guidance.
+- [ARCHITECTURE.md](ARCHITECTURE.md): Module-by-module reference.
+- [.repobility/access.yml](.repobility/access.yml): Endpoint-by-endpoint
+  authorization matrix.
+
+## Source files
+
+- `server.js`: Express + Socket.IO relay. Validates payload shapes,
+  routes to recipient sockets, queues offline messages, broadcasts
+  presence. No persistent storage.
+- `public/crypto-utils.js`: Wallet keygen, encrypt/decrypt, validation,
+  fingerprint, deterministic avatar.
+- `public/app.js`: Wallet management, contacts, chat thread, presence,
+  typing indicators, encrypted send/receive.
+- `public/index.html`: Single-page UI with strict Content-Security-Policy
+  (`script-src 'self'`, no third-party origins).
+- `tests/`: Node native test runner suites — crypto roundtrip,
+  authentication invariants, server validation, offline queueing.
+
+## How to run
+
+    npm install
+    npm start
+    # open http://127.0.0.1:3000 in two browsers
+
+## License
+
+MIT
