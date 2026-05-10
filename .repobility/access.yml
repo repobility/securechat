@@ -1,0 +1,122 @@
+# Repobility access matrix — SecureChat
+# https://repobility.com/docs/access-matrix
+#
+# Addresses [AUC001] from Repobility scan #1 ("the repository uses web/API
+# frameworks but does not define .repobility/access.yml or equivalent
+# authorization documentation").
+#
+# Style note for reviewers: SecureChat has no traditional roles or admin
+# endpoints. The "authorization" surface is defined by cryptographic
+# possession of an X25519 keypair. We document that here in the access-
+# matrix shape Repobility expects, so the static analyzer can verify that
+# every public endpoint matches an explicit policy.
+
+version: 1
+
+# Roles defined by cryptographic possession, not by a server-side database.
+# The relay never holds private keys, so it cannot grant or revoke a role.
+roles:
+  anonymous:
+    description: |
+      Any client that has connected to the relay but has not yet sent a
+      `register` event with a valid X25519 public key.
+  identified:
+    description: |
+      A connected socket that has registered a 32-byte X25519 public key.
+      The server stamps every outgoing `message` envelope with the socket's
+      registered identity, so an identified user cannot forge `from`.
+  recipient:
+    description: |
+      The owner of an X25519 keypair whose public half matches the `to`
+      field on a `message` envelope. By construction, only that recipient
+      can decrypt the ciphertext (NaCl box, X25519 + XSalsa20-Poly1305).
+
+# Every endpoint the server exposes, with the role required to invoke it.
+# `protection` describes the mechanism that enforces the policy at runtime.
+endpoints:
+  - path: GET /
+    role: anonymous
+    description: Static HTML/CSS/JS app shell.
+    protection: none
+
+  - path: GET /healthz
+    role: anonymous
+    description: Liveness probe — returns { ok: true, online: <count> }.
+    protection: none
+
+  - path: GET /vendor/nacl/{nacl,nacl-util}.min.js
+    role: anonymous
+    description: Pinned NaCl libraries served from node_modules.
+    protection: none
+
+  - path: GET /socket.io/*
+    role: anonymous
+    description: Socket.IO transport handshake. Per-event auth follows.
+    protection: none
+
+  - path: WS register
+    role: anonymous
+    description: |
+      Client claims an X25519 identity for this socket. Subsequent
+      `message` and `typing` events are stamped with this identity.
+    protection: |
+      Server-side regex validation of the pubkey shape (PUBKEY_RE in
+      server.js). Re-register transitions release the previous identity.
+
+  - path: WS presence:check
+    role: identified
+    description: Query whether a given pubkey has any live socket.
+    protection: |
+      Identity is stamped at register time. Returns false when the pubkey
+      is not currently online; never reveals connection counts or IPs.
+
+  - path: WS message
+    role: identified
+    description: |
+      Submit an encrypted envelope { to, nonce, ciphertext } for relay.
+      The server cannot decrypt and never logs ciphertext.
+    protection: |
+      - Sender identity is the registered pubkey on this socket. The
+        server ignores any client-supplied `from` (server.js).
+      - Pubkey/nonce/ciphertext are validated by regex+length before
+        any state mutation.
+      - Per-recipient offline queue is bounded at 200 envelopes.
+      - Socket.IO maxHttpBufferSize is 128 KiB.
+    asserted_by: tests/auth.test.js (AUTH-01..AUTH-06)
+
+  - path: WS typing
+    role: identified
+    description: Forward a "typing" indicator to a single recipient.
+    protection: |
+      Identity is stamped from the registered pubkey. Recipient pubkey
+      validated. No persistence; broadcast scope is exactly the
+      recipient's currently-online sockets.
+
+# What the system explicitly does *not* try to do.
+# Repobility uses these to prevent false-positive "missing role" findings.
+non_goals:
+  - "No server-side accounts, sessions, or password authentication."
+  - "No admin or super_admin role exists. The relay has no privileged
+     operations a client could be granted."
+  - "No persistent message storage. The offline queue is a bounded
+     in-memory buffer drained on register."
+  - "No federation, no cross-relay routing. Every relay is its own
+     identity namespace."
+
+# Tests that prove the matrix above is enforced at runtime.
+asserted_by:
+  - tests/auth.test.js
+  - tests/server.test.js
+
+# CWE / OWASP cross-reference for security reviewers.
+cwe_references:
+  - CWE-285  # Improper Authorization — addressed by role table
+  - CWE-287  # Improper Authentication — addressed by register stamp
+  - CWE-345  # Insufficient Verification of Data Authenticity — Poly1305 MAC
+  - CWE-359  # Exposure of Private Personal Information — keys never leave browser
+
+owasp_references:
+  - A01:2021 Broken Access Control     # mapped via endpoints table
+  - A02:2021 Cryptographic Failures    # X25519 + XSalsa20-Poly1305
+  - A04:2021 Insecure Design           # E2E by design, server is honest-but-curious
+  - A07:2021 Identification & Authn    # cryptographic identity, no shared secrets
