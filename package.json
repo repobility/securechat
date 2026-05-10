@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node --test \"tests/**/*.test.js\""
   },
   "engines": {
     "node": ">=18"
@@ -16,5 +17,8 @@
     "socket.io": "^4.8.1",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.1"
   }
 }
