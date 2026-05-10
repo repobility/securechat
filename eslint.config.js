@@ -11,7 +11,7 @@ module.exports = [
 
   {
     // Server, tests, and config — Node environment.
-    files: ['server.js', 'tests/**/*.js', 'eslint.config.js'],
+    files: ['server.js', 'src/**/*.js', 'tests/**/*.js', 'eslint.config.js'],
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: 'commonjs',
