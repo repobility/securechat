@@ -17,73 +17,87 @@ roles:
     description: Holder of the secret key matching a recipient pubkey on a message envelope.
 
 endpoints:
-  - path: GET /
+  - method: GET
+    path: /
     role: anonymous
     description: Static SPA shell.
     protection: none
 
-  - path: GET /healthz
+  - method: GET
+    path: /healthz
     role: anonymous
     description: Liveness probe.
     protection: none
 
-  - path: GET /vendor/nacl/nacl.min.js
+  - method: GET
+    path: /vendor/nacl/nacl.min.js
     role: anonymous
     description: Pinned TweetNaCl library.
     protection: none
 
-  - path: GET /vendor/nacl/nacl-util.min.js
+  - method: GET
+    path: /vendor/nacl/nacl-util.min.js
     role: anonymous
     description: Pinned TweetNaCl util library.
     protection: none
 
-  - path: GET /socket.io/*
+  - method: GET
+    path: /socket.io/*
     role: anonymous
     description: Socket.IO transport handshake. Per-event auth follows.
     protection: none
 
-  - path: GET /robots.txt
+  - method: GET
+    path: /robots.txt
     role: anonymous
     description: Crawl policy.
     protection: none
 
-  - path: GET /sitemap.xml
+  - method: GET
+    path: /sitemap.xml
     role: anonymous
     description: Sitemap.
     protection: none
 
-  - path: GET /humans.txt
+  - method: GET
+    path: /humans.txt
     role: anonymous
     description: Project credits.
     protection: none
 
-  - path: GET /llms.txt
+  - method: GET
+    path: /llms.txt
     role: anonymous
     description: Machine-readable project summary for AI agents.
     protection: none
 
-  - path: GET /.well-known/security.txt
+  - method: GET
+    path: /.well-known/security.txt
     role: anonymous
     description: RFC 9116 security contact.
     protection: none
 
-  - path: WS register
+  - method: WS
+    path: register
     role: anonymous
     description: Claim an X25519 identity for this socket.
     protection: regex_validate_pubkey
 
-  - path: WS presence:check
+  - method: WS
+    path: presence:check
     role: identified
     description: Query whether a pubkey has any live socket.
     protection: regex_validate_pubkey
 
-  - path: WS message
+  - method: WS
+    path: message
     role: identified
     description: Submit an encrypted envelope for relay to a recipient pubkey.
     protection: server_stamps_from_identity, regex_validate_payload, recipient_routed_only
     asserted_by: tests/auth.test.js
 
-  - path: WS typing
+  - method: WS
+    path: typing
     role: identified
     description: Forward a typing indicator to a single recipient.
     protection: server_stamps_from_identity, regex_validate_pubkey
