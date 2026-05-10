@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; base-uri 'self'; form-action 'none'; frame-ancestors 'none';" />
+    <title>SecureChat — End-to-End Encrypted</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <!-- Setup screen: shown until a wallet exists -->
+    <section id="setup-screen" class="screen" hidden>
+      <div class="setup-card">
+        <div class="brand">
+          <span class="lock">🔐</span>
+          <h1>SecureChat</h1>
+        </div>
+        <p class="muted">
+          End-to-end encrypted messaging. Your wallet (a public/private keypair) is generated and
+          stored only on this device. The server relays ciphertext &mdash; it cannot read your
+          messages.
+        </p>
+
+        <div class="setup-actions">
+          <button id="btn-create-wallet" class="primary">Create new wallet</button>
+          <button id="btn-import-wallet" class="ghost">Import existing wallet</button>
+        </div>
+
+        <details class="import-pane" id="import-pane">
+          <summary>Restore from secret key</summary>
+          <label for="import-key">Paste your 64-character secret key (base64)</label>
+          <textarea id="import-key" rows="3" spellcheck="false" autocomplete="off"></textarea>
+          <label class="row">
+            <span>Optional display name</span>
+            <input id="import-name" type="text" maxlength="40" autocomplete="off" />
+          </label>
+          <button id="btn-do-import" class="primary">Restore wallet</button>
+          <p class="error" id="import-error" hidden></p>
+        </details>
+
+        <details class="create-pane" id="create-pane">
+          <summary>Display name</summary>
+          <label for="create-name">Optional &mdash; shown only to you and contacts you share it with.</label>
+          <input id="create-name" type="text" maxlength="40" autocomplete="off" placeholder="Anonymous" />
+        </details>
+
+        <p class="fineprint">
+          Cipher: NaCl <code>box</code> (X25519 key agreement, XSalsa20 stream cipher, Poly1305
+          MAC). Keys are stored in this browser's <code>localStorage</code>. Clear the site data and
+          your wallet is gone &mdash; back up your secret key if you want to keep your identity.
+        </p>
+      </div>
+    </section>
+
+    <!-- Main app -->
+    <section id="app-screen" class="screen" hidden>
+      <aside class="sidebar">
+        <header class="sidebar-header">
+          <div class="brand small">
+            <span class="lock">🔐</span>
+            <span>SecureChat</span>
+          </div>
+          <button id="btn-menu" class="icon-btn" aria-label="Account menu" title="Account">⋯</button>
+        </header>
+
+        <section class="my-identity" aria-labelledby="my-identity-title">
+          <div class="my-identity-head">
+            <h2 id="my-identity-title">My wallet</h2>
+            <span class="dot online" id="self-status" title="Connected"></span>
+          </div>
+          <div class="identity-name" id="self-name">Anonymous</div>
+          <div class="pubkey-row">
+            <code class="pubkey" id="self-pubkey-short" title=""></code>
+            <button class="icon-btn" id="btn-copy-pubkey" title="Copy public key">📋</button>
+          </div>
+          <div class="identity-actions">
+            <button id="btn-show-secret" class="link">Show secret key</button>
+            <button id="btn-rename" class="link">Rename</button>
+          </div>
+        </section>
+
+        <section class="contacts" aria-labelledby="contacts-title">
+          <div class="contacts-head">
+            <h2 id="contacts-title">Contacts</h2>
+            <button id="btn-add-contact" class="icon-btn" title="Add contact">＋</button>
+          </div>
+          <ul id="contact-list" class="contact-list"></ul>
+        </section>
+      </aside>
+
+      <main class="chat" aria-live="polite">
+        <header class="chat-header" id="chat-header" hidden>
+          <div>
+            <div class="chat-title" id="chat-title"></div>
+            <div class="chat-sub">
+              <span class="dot" id="peer-status"></span>
+              <code class="pubkey" id="chat-pubkey"></code>
+              <button class="icon-btn small" id="btn-copy-peer" title="Copy contact public key">📋</button>
+            </div>
+          </div>
+          <div class="chat-tools">
+            <button id="btn-clear-thread" class="ghost small" title="Clear local message history with this contact">Clear thread</button>
+            <button id="btn-remove-contact" class="ghost small danger" title="Remove contact">Remove</button>
+          </div>
+        </header>
+
+        <div class="messages" id="messages">
+          <div class="empty-chat" id="empty-chat">
+            <p class="muted">Pick a contact, or add one with their public key, to start an encrypted conversation.</p>
+          </div>
+        </div>
+
+        <footer class="composer" id="composer" hidden>
+          <div class="typing-indicator" id="typing-indicator" hidden>typing…</div>
+          <form id="composer-form" autocomplete="off">
+            <textarea
+              id="composer-input"
+              rows="1"
+              placeholder="Type an encrypted message…  (Enter to send, Shift+Enter for newline)"
+              maxlength="8000"
+            ></textarea>
+            <button type="submit" class="primary" id="btn-send" title="Send (Enter)">Send</button>
+          </form>
+          <div class="composer-hint">
+            <span>🔒 End-to-end encrypted to <code id="composer-recipient"></code></span>
+          </div>
+        </footer>
+      </main>
+    </section>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" id="modal-backdrop" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <header class="modal-head">
+          <h3 id="modal-title">Title</h3>
+          <button class="icon-btn" id="modal-close" aria-label="Close">✕</button>
+        </header>
+        <div class="modal-body" id="modal-body"></div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <script src="/vendor/nacl/nacl.min.js"></script>
+    <script src="/vendor/nacl/nacl-util.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/crypto-utils.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
