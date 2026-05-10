@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['20', '22', '24']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run test suite
+        run: npm test
+
+  audit:
+    name: npm audit (production deps)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Audit production dependencies
+        # Fail the build only on high/critical vulnerabilities in deps that
+        # ship to production. Dev-only findings are reported but non-blocking.
+        run: npm audit --omit=dev --audit-level=high
+
+  syntax:
+    name: Static syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Node sources parse cleanly
+        run: |
+          node --check server.js
+          for f in tests/*.test.js; do node --check "$f"; done
+      - name: Check browser sources parse cleanly
+        # Browser code uses globals (window, navigator, document, etc.) that
+        # don't exist in Node. --check only does a syntax pass and tolerates
+        # undeclared identifiers, so it's the right tool here.
+        run: |
+          for f in public/app.js public/crypto-utils.js; do node --check "$f"; done
